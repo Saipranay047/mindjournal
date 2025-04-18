@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ModeToggle } from "@/components/mode-toggle"
+import { useEffect, useState } from "react"
 
 interface NavItem {
   title: string
@@ -28,6 +29,25 @@ interface NavItem {
 
 export function DashboardNav() {
   const pathname = usePathname()
+  const [user, setUser] = useState<any>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    // Get user data
+    const userData = localStorage.getItem("currentUser")
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+
+    // Check if mobile
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   const navItems: NavItem[] = [
     {
@@ -72,9 +92,18 @@ export function DashboardNav() {
     },
   ]
 
+  // Add admin link if user is superadmin
+  if (user && user.role === "superadmin") {
+    navItems.push({
+      title: "Admin Panel",
+      href: "/admin",
+      icon: <CogIcon className="h-5 w-5" />,
+    })
+  }
+
   return (
-    <div className="flex h-screen flex-col border-r bg-background">
-      <div className="flex h-14 items-center border-b px-4">
+    <div className="flex h-screen flex-col border-r border-gray-800 bg-gray-950">
+      <div className="flex h-14 items-center border-b border-gray-800 px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           <PenIcon className="h-6 w-6 text-teal-500" />
           <span>MindJournal</span>
@@ -87,8 +116,8 @@ export function DashboardNav() {
               key={index}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
-                pathname === item.href && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50",
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-50 dark:text-gray-400 dark:hover:text-gray-50",
+                pathname === item.href && "bg-gray-800 text-gray-50 dark:bg-gray-800 dark:text-gray-50",
               )}
             >
               {item.icon}
@@ -105,7 +134,7 @@ export function DashboardNav() {
           </Button>
         </Link>
       </div>
-      <div className="border-t p-4">
+      <div className="border-t border-gray-800 p-4">
         <div className="flex items-center justify-between">
           <ModeToggle />
           <Link href="/logout">

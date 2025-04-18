@@ -41,6 +41,11 @@ const sampleMoodData: MoodData[] = [
 // Get journal entries for the current user
 export function getUserEntries(userId: string): JournalEntry[] {
   try {
+    if (!userId) {
+      console.warn("No user ID provided to getUserEntries")
+      return []
+    }
+
     const entriesKey = `journal_entries_${userId}`
     const storedEntries = localStorage.getItem(entriesKey)
 
@@ -59,6 +64,11 @@ export function getUserEntries(userId: string): JournalEntry[] {
 // Save journal entries for the current user
 export function saveUserEntries(userId: string, entries: JournalEntry[]): void {
   try {
+    if (!userId) {
+      console.error("No user ID provided to saveUserEntries")
+      return
+    }
+
     const entriesKey = `journal_entries_${userId}`
     localStorage.setItem(entriesKey, JSON.stringify(entries))
   } catch (error) {
@@ -69,6 +79,11 @@ export function saveUserEntries(userId: string, entries: JournalEntry[]): void {
 // Get mood data for the current user
 export function getUserMoodData(userId: string): MoodData[] {
   try {
+    if (!userId) {
+      console.warn("No user ID provided to getUserMoodData")
+      return []
+    }
+
     const moodKey = `mood_data_${userId}`
     const storedMoodData = localStorage.getItem(moodKey)
 
@@ -87,6 +102,11 @@ export function getUserMoodData(userId: string): MoodData[] {
 // Save mood data for the current user
 export function saveUserMoodData(userId: string, moodData: MoodData[]): void {
   try {
+    if (!userId) {
+      console.error("No user ID provided to saveUserMoodData")
+      return
+    }
+
     const moodKey = `mood_data_${userId}`
     localStorage.setItem(moodKey, JSON.stringify(moodData))
   } catch (error) {
@@ -96,17 +116,26 @@ export function saveUserMoodData(userId: string, moodData: MoodData[]): void {
 
 // Initialize a new user with sample data
 export function initializeNewUser(userId: string): void {
-  // Check if user already has data
-  const existingEntries = getUserEntries(userId)
-  const existingMoodData = getUserMoodData(userId)
+  try {
+    if (!userId) {
+      console.error("No user ID provided to initializeNewUser")
+      return
+    }
 
-  // Only initialize if user has no data
-  if (existingEntries.length === 0) {
-    saveUserEntries(userId, sampleEntries)
-  }
+    // Check if user already has data
+    const existingEntries = getUserEntries(userId)
+    const existingMoodData = getUserMoodData(userId)
 
-  if (existingMoodData.length === 0) {
-    saveUserMoodData(userId, sampleMoodData)
+    // Only initialize if user has no data
+    if (existingEntries.length === 0) {
+      saveUserEntries(userId, sampleEntries)
+    }
+
+    if (existingMoodData.length === 0) {
+      saveUserMoodData(userId, sampleMoodData)
+    }
+  } catch (error) {
+    console.error("Error initializing new user:", error)
   }
 }
 

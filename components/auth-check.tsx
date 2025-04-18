@@ -3,26 +3,35 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
 export function AuthCheck({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState<any>(null)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     // Check if user is logged in
     const currentUser = localStorage.getItem("currentUser")
 
     if (currentUser) {
+      const parsedUser = JSON.parse(currentUser)
+      setUser(parsedUser)
       setIsAuthenticated(true)
+
+      // If user is trying to access admin pages but is not a superadmin
+      if (pathname.startsWith("/admin") && parsedUser.role !== "superadmin") {
+        router.push("/dashboard")
+      }
     } else {
       router.push("/login")
     }
 
     setIsLoading(false)
-  }, [router])
+  }, [router, pathname])
 
   if (isLoading) {
     return (

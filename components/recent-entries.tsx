@@ -9,7 +9,10 @@ interface RecentEntriesProps {
 
 export function RecentEntries({ entries }: RecentEntriesProps) {
   // Sort entries by date (newest first)
-  const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
+  const sortedEntries =
+    entries && entries.length > 0
+      ? [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
+      : []
 
   return (
     <div className="space-y-4">
@@ -24,10 +27,10 @@ export function RecentEntries({ entries }: RecentEntriesProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{entry.content}</p>
+                <p className="line-clamp-2 text-sm text-muted-foreground">{entry.content}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {entry.tags.map((tag) => (
-                    <span key={tag} className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full text-xs">
+                    <span key={tag} className="bg-muted px-2 py-0.5 rounded-full text-xs">
                       {tag}
                     </span>
                   ))}
